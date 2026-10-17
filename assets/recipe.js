@@ -2,6 +2,11 @@
   const R = window.RECIPE;
   if (!R) return;
 
+  const head=document.head;
+  if(head && !head.querySelector('link[rel~="icon"]')){
+    const svg=document.createElement('link'); svg.rel='icon'; svg.type='image/svg+xml'; svg.href='../favicon.svg'; head.appendChild(svg);
+  }
+
   const scanMap = {
     'apple-butter-cinnamon-swirl-bread': 'Apple%20Butter%20Cinnamon%20Swirl%20Bread.pdf',
     'apple-slices': 'Apple%20Slices.pdf',
