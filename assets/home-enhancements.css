@@ -60,6 +60,26 @@
   background:#f2e7d8;
   color:#67513d;
 }
+.tag-filterable{
+  cursor:pointer;
+  user-select:none;
+  transition:border-color .12s ease,background .12s ease,color .12s ease,box-shadow .12s ease,transform .12s ease;
+}
+.tag-filterable:hover,
+.tag-filterable:focus{
+  border-color:var(--accent2);
+  box-shadow:0 0 0 2px rgba(200,160,107,.16);
+  outline:none;
+  transform:translateY(-1px);
+}
+.tag-filter-active,
+.record-tag.tag-filter-active,
+.record-tag:first-child.tag-filter-active{
+  background:var(--accent);
+  color:white;
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px rgba(138,90,43,.13);
+}
 @media(max-width:600px){
   .sortbar{justify-content:flex-start;margin-top:-8px}
   .sort-control{flex:1}
