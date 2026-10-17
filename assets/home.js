@@ -28,6 +28,21 @@
   // The former category preset buttons are now represented as ordinary tags.
   document.querySelector('.filters')?.remove();
 
+  // Add a clear contribution path beside the recipe count without changing the static homepage markup.
+  const countBadge = document.querySelector('.count-badge');
+  if (countBadge && !document.querySelector('.contribute-link')) {
+    const actions = document.createElement('div');
+    actions.className = 'home-actions';
+    countBadge.parentNode.insertBefore(actions, countBadge);
+    actions.appendChild(countBadge);
+
+    const contribute = document.createElement('a');
+    contribute.className = 'contribute-link';
+    contribute.href = 'contribute.html';
+    contribute.textContent = '+ Contribute a recipe';
+    actions.appendChild(contribute);
+  }
+
   // Make sure each recipe's category is also represented by a visible tag.
   cards.forEach(card => {
     const category = (card.dataset.category || '').trim();
