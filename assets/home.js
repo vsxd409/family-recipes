@@ -16,7 +16,7 @@
   const sortDirection = document.getElementById('sortDirection');
 
   let direction = 'asc';
-  let activeTag = '';
+  const activeTags = new Set();
 
   const normalizeTag = value => String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
 
@@ -65,9 +65,9 @@
   tagPanel.setAttribute('aria-label', 'Browse recipes by tag');
   tagPanel.innerHTML = `
     <div class="tag-panel-title">Browse tags</div>
-    <div class="tag-panel-help">Choose a tag to show matching recipes. Choose it again to clear.</div>
+    <div class="tag-panel-help">Choose one or more tags to narrow the recipes. Selected tags are cumulative.</div>
     <div class="tag-cloud"></div>
-    <button class="clear-tag-filter" type="button" hidden>Clear tag filter</button>
+    <button class="clear-tag-filter" type="button" hidden>Clear tag filters</button>
   `;
 
   const tagCloud = tagPanel.querySelector('.tag-cloud');
@@ -78,7 +78,7 @@
     button.textContent = label;
     button.dataset.tag = normalizeTag(label);
     button.setAttribute('aria-pressed', 'false');
-    button.setAttribute('title', `Filter recipes by “${label}”`);
+    button.setAttribute('title', `Add or remove “${label}” from the recipe filters`);
     tagCloud.appendChild(button);
   });
 
@@ -134,9 +134,10 @@
     updateDirectionLabel();
   }
 
-  function cardHasActiveTag(card) {
-    if (!activeTag) return true;
-    return cardTags(card).some(label => normalizeTag(label) === activeTag);
+  function cardHasActiveTags(card) {
+    if (!activeTags.size) return true;
+    const tags = new Set(cardTags(card).map(normalizeTag));
+    return [...activeTags].every(tag => tags.has(tag));
   }
 
   function allFilterableTags() {
@@ -146,12 +147,12 @@
   function updateTagState() {
     allFilterableTags().forEach(tag => {
       const value = tag.dataset.tag || normalizeTag(tag.textContent);
-      const selected = !!activeTag && value === activeTag;
+      const selected = activeTags.has(value);
       tag.classList.toggle('tag-filter-active', selected);
       tag.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
 
-    clearTagButton.hidden = !activeTag;
+    clearTagButton.hidden = activeTags.size === 0;
   }
 
   function applyFilters() {
@@ -170,8 +171,8 @@
       ].filter(Boolean).join(' ').toLowerCase();
 
       const okQ = !q || haystack.includes(q);
-      const okTag = cardHasActiveTag(card);
-      const visible = okQ && okTag;
+      const okTags = cardHasActiveTags(card);
+      const visible = okQ && okTags;
 
       card.style.display = visible ? 'grid' : 'none';
       if (visible) shown++;
@@ -181,9 +182,10 @@
     updateTagState();
   }
 
-  function setTagFilter(value) {
+  function toggleTagFilter(value) {
     const normalized = normalizeTag(value);
-    activeTag = activeTag === normalized ? '' : normalized;
+    if (activeTags.has(normalized)) activeTags.delete(normalized);
+    else activeTags.add(normalized);
     applyFilters();
   }
 
@@ -193,28 +195,28 @@
     tag.setAttribute('role', 'button');
     tag.setAttribute('tabindex', '0');
     tag.setAttribute('aria-pressed', 'false');
-    tag.setAttribute('title', `Filter recipes by “${tag.textContent.trim()}”`);
+    tag.setAttribute('title', `Add or remove “${tag.textContent.trim()}” from the recipe filters`);
 
     tag.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      setTagFilter(tag.textContent);
+      toggleTagFilter(tag.textContent);
     });
 
     tag.addEventListener('keydown', event => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       event.preventDefault();
       event.stopPropagation();
-      setTagFilter(tag.textContent);
+      toggleTagFilter(tag.textContent);
     });
   });
 
   tagCloud.querySelectorAll('.cloud-tag').forEach(tag => {
-    tag.addEventListener('click', () => setTagFilter(tag.dataset.tag));
+    tag.addEventListener('click', () => toggleTagFilter(tag.dataset.tag));
   });
 
   clearTagButton.addEventListener('click', () => {
-    activeTag = '';
+    activeTags.clear();
     applyFilters();
   });
 
@@ -232,8 +234,8 @@
   });
 
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && activeTag) {
-      activeTag = '';
+    if (event.key === 'Escape' && activeTags.size) {
+      activeTags.clear();
       applyFilters();
     }
   });
