@@ -43,6 +43,30 @@
     actions.appendChild(contribute);
   }
 
+  // Recipe metadata updates that should appear on the homepage immediately.
+  const chiliCard = cards.find(card => card.getAttribute('href') === 'recipes/crockpot-chili.html');
+  if (chiliCard) {
+    chiliCard.dataset.updated = '2026-10-17';
+
+    const updatedTag = [...chiliCard.querySelectorAll('.record-tag')]
+      .find(tag => tag.textContent.trim().startsWith('Updated:'));
+    if (updatedTag) {
+      updatedTag.innerHTML = 'Updated: <time datetime="2026-10-17">Oct 17, 2026</time>';
+    }
+
+    const tagHost = chiliCard.querySelector('.rtags');
+    if (tagHost) {
+      const hasStory = [...tagHost.querySelectorAll('.tag')]
+        .some(tag => normalizeTag(tag.textContent) === 'has story');
+      if (!hasStory) {
+        const storyTag = document.createElement('span');
+        storyTag.className = 'tag';
+        storyTag.textContent = 'Has story';
+        tagHost.appendChild(storyTag);
+      }
+    }
+  }
+
   // Make sure each recipe's category is also represented by a visible tag.
   cards.forEach(card => {
     const category = (card.dataset.category || '').trim();
