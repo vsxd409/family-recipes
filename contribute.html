@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Contribute a Recipe | Family Recipes</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+  <link rel="stylesheet" href="assets/style.css"/>
+  <link rel="stylesheet" href="assets/contribute.css"/>
+</head>
+<body>
+  <div class="wrap contribute-wrap">
+    <div class="sitebar">
+      <a class="back" href="index.html">← Family Recipes</a>
+    </div>
+
+    <header class="contribute-hero">
+      <div class="kicker">Help grow the archive</div>
+      <h1>Contribute a Recipe</h1>
+      <p class="sub">Have a family favorite, handwritten card, old printout, or recipe with a story behind it? Send it along. A clear photo, scan, or PDF is perfect — no need to type or clean anything up first.</p>
+    </header>
+
+    <div class="contribute-grid">
+      <main class="card contribute-card">
+        <form action="https://formsubmit.co/bendorfm+family-recipes@gmail.com" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="_subject" value="New Family Recipe Submission"/>
+          <input type="hidden" name="_next" value="https://vsxd409.github.io/family-recipes/thanks.html"/>
+          <input type="hidden" name="_template" value="table"/>
+          <input type="hidden" name="_url" value="https://vsxd409.github.io/family-recipes/contribute.html"/>
+          <input class="honey" type="text" name="_honey" tabindex="-1" autocomplete="off"/>
+
+          <div class="form-row two-up">
+            <label>
+              <span>Your name</span>
+              <input type="text" name="Submitted by" autocomplete="name" required/>
+            </label>
+            <label>
+              <span>Your email</span>
+              <input type="email" name="email" autocomplete="email" required/>
+            </label>
+          </div>
+
+          <label>
+            <span>Recipe name</span>
+            <input type="text" name="Recipe name" required placeholder="Grandma's apple cake, Sunday chili, etc."/>
+          </label>
+
+          <label>
+            <span>Recipe source <small>optional</small></span>
+            <input type="text" name="Recipe source" placeholder="Who did this recipe come from?"/>
+          </label>
+
+          <label>
+            <span>Story, notes, or traditions <small>optional</small></span>
+            <textarea name="Story or notes" rows="5" placeholder="Who makes it, when you serve it, changes you've made, why it matters to the family…"></textarea>
+          </label>
+
+          <label class="upload-field">
+            <span>Attach the recipe</span>
+            <input type="file" name="attachment" accept="image/*,.pdf" required/>
+            <small>Photo, scan, or PDF. Maximum file size: 10 MB.</small>
+          </label>
+
+          <label class="permission-row">
+            <input type="checkbox" name="Permission to publish" value="Yes" required/>
+            <span>I understand that this recipe and its submitted image or PDF may be added to the public Family Recipes site.</span>
+          </label>
+
+          <button class="submit-recipe" type="submit">Send recipe</button>
+        </form>
+      </main>
+
+      <aside class="card contribute-note">
+        <h2>What to send</h2>
+        <p>The original is part of the fun. Handwriting, stains, margin notes, clipped recipes, and old family printouts are all welcome.</p>
+        <p>If there is a story attached to the recipe — who it came from, when you make it, or who especially loves it — include that too.</p>
+        <p class="privacy-note"><strong>Please remember:</strong> this is a public family recipe site. Don’t submit anything you would not want shared publicly.</p>
+        <p>You can also send recipes directly to Michael by email or text if that is easier.</p>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
