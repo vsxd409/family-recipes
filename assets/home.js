@@ -78,6 +78,17 @@
     tags: ['Breads', 'Artisan bread', 'Overnight', 'Dutch oven', 'Cookbook', 'Handwritten notes', 'Has story', 'Variations']
   });
 
+  addRecipeCard({
+    href: 'recipes/same-day-straight-pizza-dough.html',
+    name: 'Same-Day Straight Pizza Dough',
+    source: 'Ken Forkish',
+    category: 'Breads',
+    searchText: 'same day straight pizza dough ken forkish flour water salt yeast family pizza night morning dough fermentation pizza artisan dough next day focaccia iron skillet',
+    icon: '🍕',
+    description: 'A daytime-fermented pizza dough mixed in the morning and ready for family pizza night that evening.',
+    tags: ['Breads', 'Pizza', 'Artisan dough', 'Same-day', 'Cookbook', 'Has story', 'Variations']
+  });
+
   const countBadge = document.querySelector('.count-badge');
   if (countBadge) countBadge.textContent = `${cards.length} recipes`;
   if (countBadge && !document.querySelector('.contribute-link')) {
