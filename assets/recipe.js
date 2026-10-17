@@ -35,7 +35,13 @@
     archivedScan.replaceWith(link);
   }
 
-  const core = document.createElement('script');
-  core.src = new URL('recipe-core.js', document.currentScript.src).href;
-  document.head.appendChild(core);
+  const currentScriptUrl=document.currentScript.src;
+  const units=document.createElement('script');
+  units.src=new URL('units.js',currentScriptUrl).href;
+  units.onload=()=>{
+    const core=document.createElement('script');
+    core.src=new URL('recipe-core.js',currentScriptUrl).href;
+    document.head.appendChild(core);
+  };
+  document.head.appendChild(units);
 })();
