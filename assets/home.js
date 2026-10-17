@@ -84,13 +84,55 @@
     }
   });
 
+  // Created and Updated remain visible metadata, but they are no longer filter tags.
+  // Source remains filterable because it is useful across multiple recipes.
+  cards.forEach(card => {
+    [...card.querySelectorAll('.record-tag')].forEach(tag => {
+      const isSource = tag.textContent.trim().startsWith('Source:');
+      tag.dataset.filterable = isSource ? 'true' : 'false';
+    });
+  });
+
+  // Flag recipes that were actually revised after creation within the past 30 days.
+  // This tag expires automatically as the update gets older.
+  const now = new Date();
+  cards.forEach(card => {
+    const createdText = card.dataset.created;
+    const updatedText = card.dataset.updated;
+    if (!createdText || !updatedText) return;
+
+    const created = new Date(`${createdText}T00:00:00`);
+    const updated = new Date(`${updatedText}T00:00:00`);
+    const ageDays = (now - updated) / 86400000;
+    const isRecentRevision = updated > created && ageDays >= 0 && ageDays <= 30;
+    if (!isRecentRevision) return;
+
+    const tagHost = card.querySelector('.rtags');
+    if (!tagHost) return;
+    const exists = [...tagHost.querySelectorAll('.tag')]
+      .some(tag => normalizeTag(tag.textContent) === 'recently updated');
+    if (!exists) {
+      const recentTag = document.createElement('span');
+      recentTag.className = 'tag';
+      recentTag.textContent = 'Recently updated';
+      tagHost.appendChild(recentTag);
+    }
+  });
+
+  function filterableCardTags(card) {
+    return [
+      ...card.querySelectorAll('.tag'),
+      ...card.querySelectorAll('.record-tag[data-filterable="true"]')
+    ];
+  }
+
   function cardTags(card) {
-    return [...card.querySelectorAll('.tag, .record-tag')]
+    return filterableCardTags(card)
       .map(tag => tag.textContent.trim())
       .filter(Boolean);
   }
 
-  // Build a left-hand browse panel from every unique tag currently on the recipe cards.
+  // Build a left-hand browse panel from descriptive tags and sources only.
   const uniqueTags = [...new Map(
     cards.flatMap(card => cardTags(card))
       .map(label => [normalizeTag(label), label])
@@ -104,7 +146,7 @@
   tagPanel.setAttribute('aria-label', 'Browse recipes by tag');
   tagPanel.innerHTML = `
     <div class="tag-panel-title">Browse tags</div>
-    <div class="tag-panel-help">Choose one or more tags to narrow the recipes. Selected tags are cumulative.</div>
+    <div class="tag-panel-help">Choose one or more tags to narrow the recipes. Dates stay visible on each recipe and remain available in Sort by.</div>
     <div class="tag-cloud"></div>
     <button class="clear-tag-filter" type="button" hidden>Clear tag filters</button>
   `;
@@ -180,7 +222,11 @@
   }
 
   function allFilterableTags() {
-    return [...document.querySelectorAll('.recipe-card .tag, .recipe-card .record-tag, .cloud-tag')];
+    return [
+      ...document.querySelectorAll('.recipe-card .tag'),
+      ...document.querySelectorAll('.recipe-card .record-tag[data-filterable="true"]'),
+      ...document.querySelectorAll('.cloud-tag')
+    ];
   }
 
   function updateTagState() {
@@ -228,8 +274,13 @@
     applyFilters();
   }
 
-  // Tile tags remain clickable while the card itself still opens normally elsewhere.
-  document.querySelectorAll('.recipe-card .tag, .recipe-card .record-tag').forEach(tag => {
+  // Descriptive tags and Source are clickable. Created/Updated remain display-only metadata.
+  const tileFilterTags = [
+    ...document.querySelectorAll('.recipe-card .tag'),
+    ...document.querySelectorAll('.recipe-card .record-tag[data-filterable="true"]')
+  ];
+
+  tileFilterTags.forEach(tag => {
     tag.classList.add('tag-filterable');
     tag.setAttribute('role', 'button');
     tag.setAttribute('tabindex', '0');
