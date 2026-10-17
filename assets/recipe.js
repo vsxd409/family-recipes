@@ -18,7 +18,7 @@
     'jiaozi': 'Jiaozi.pdf',
     'mayo': 'Mayo.pdf',
     'mochi-brownies': 'Mochi%20Brownies.pdf',
-    'mug-scrambler': 'Mug%20Scrambler.pdf',
+    'mug-scrambler': 'Mug%20Scrambler.jpg',
     'pancakes': 'Pancakes.pdf',
     'pozole': 'Pozole.pdf',
     'steel-cut-oats': 'Steel%20cut%20oats.pdf',
@@ -32,7 +32,7 @@
     link.href = '../sources/' + scanMap[R.slug];
     link.target = '_blank';
     link.rel = 'noopener';
-    link.textContent = '▤ View original scan';
+    link.textContent = R.slug === 'mug-scrambler' ? '▤ View source page' : '▤ View original scan';
     archivedScan.replaceWith(link);
   }
 
