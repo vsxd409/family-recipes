@@ -12,7 +12,6 @@
     'apple-slices': 'Apple%20Slices.pdf',
     'beef-stew': 'Beef%20Stew.pdf',
     'blueberry-muffins': 'Blueberry%20Muffins.pdf',
-    'chinese-dumplings': 'Chinese%20Dumplings.pdf',
     'crockpot-chili': 'Crockpot%20Chili.pdf',
     'focaccia': 'Focaccia.pdf',
     'jiaozi': 'Jiaozi.pdf',
