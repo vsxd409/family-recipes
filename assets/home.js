@@ -31,7 +31,7 @@
   // Refresh the homepage introduction as the archive grows beyond simple transcriptions.
   const intro = document.querySelector('.home-hero .sub');
   if (intro) {
-    intro.textContent = 'A growing collection of family favorites, handwritten cards, old printouts, and the stories that travel with them. Each recipe keeps the original source close at hand while adding an easier-to-use interactive version, family notes, and clearly labeled variations. This archive is meant to keep growing: if you have a recipe, photo, scan, or memory that belongs here, please contribute it so we can preserve and share it together.';
+    intro.textContent = 'These are the recipes that have found their way through our family kitchens — the favorites we make again and again, the handwritten cards tucked in drawers, the old printouts with notes in the margins, and the dishes that come with a story. I hope this can be a place to keep those recipes and memories together, share them with one another, and make sure they are not lost along the way. If you have a family recipe, an old card or photo, or simply a memory about something we have always eaten together, please send it along. The more of us who add to this collection, the more it will feel like ours.';
   }
 
   // Add a clear contribution path beside the recipe count without changing the static homepage markup.
