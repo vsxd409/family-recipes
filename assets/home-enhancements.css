@@ -1,4 +1,4 @@
-/* Homepage metadata, sorting, and tag browsing */
+/* Homepage metadata, sorting, tag browsing, and contribution link */
 .sortbar{
   display:flex;
   justify-content:flex-end;
@@ -36,6 +36,33 @@
 .sort-select:focus,
 .sort-direction:focus{
   border-color:var(--accent2);
+  outline:none;
+}
+
+.home-actions{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:8px;
+}
+.home-actions .count-badge{text-align:center}
+.contribute-link{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 13px;
+  background:white;
+  color:var(--accent);
+  font-weight:750;
+  font-size:.86rem;
+  box-shadow:0 5px 15px rgba(79,56,31,.05);
+}
+.contribute-link:hover,
+.contribute-link:focus{
+  border-color:var(--accent2);
+  text-decoration:none;
   outline:none;
 }
 
@@ -155,6 +182,10 @@
 
 @media(max-width:900px){
   .browse-layout{grid-template-columns:190px minmax(0,1fr)}
+}
+@media(max-width:800px){
+  .home-actions{align-items:flex-start}
+  .home-actions .count-badge,.contribute-link{width:max-content}
 }
 @media(max-width:700px){
   .browse-layout{grid-template-columns:1fr}
