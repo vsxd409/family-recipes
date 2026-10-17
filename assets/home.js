@@ -15,9 +15,13 @@
   const empty = document.getElementById('empty');
   const sortBy = document.getElementById('sortBy');
   const sortDirection = document.getElementById('sortDirection');
+  const tagElements = [...document.querySelectorAll('.recipe-card .tag, .recipe-card .record-tag')];
 
   let cat = 'all';
   let direction = 'asc';
+  let activeTag = '';
+
+  const normalizeTag = value => String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
 
   const textCompare = (a, b) => a.localeCompare(b, undefined, {
     sensitivity: 'base',
@@ -66,6 +70,20 @@
     updateDirectionLabel();
   }
 
+  function cardHasActiveTag(card) {
+    if (!activeTag) return true;
+    return [...card.querySelectorAll('.tag, .record-tag')]
+      .some(tag => normalizeTag(tag.textContent) === activeTag);
+  }
+
+  function updateTagState() {
+    tagElements.forEach(tag => {
+      const selected = !!activeTag && normalizeTag(tag.textContent) === activeTag;
+      tag.classList.toggle('tag-filter-active', selected);
+      tag.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    });
+  }
+
   function applyFilters() {
     const q = (search.value || '').trim().toLowerCase();
     let shown = 0;
@@ -82,14 +100,43 @@
 
       const okCat = cat === 'all' || card.dataset.category === cat;
       const okQ = !q || haystack.includes(q);
-      const visible = okCat && okQ;
+      const okTag = cardHasActiveTag(card);
+      const visible = okCat && okQ && okTag;
 
       card.style.display = visible ? 'grid' : 'none';
       if (visible) shown++;
     });
 
     empty.style.display = shown ? 'none' : 'block';
+    updateTagState();
   }
+
+  function toggleTagFilter(tag) {
+    const value = normalizeTag(tag.textContent);
+    activeTag = activeTag === value ? '' : value;
+    applyFilters();
+  }
+
+  tagElements.forEach(tag => {
+    tag.classList.add('tag-filterable');
+    tag.setAttribute('role', 'button');
+    tag.setAttribute('tabindex', '0');
+    tag.setAttribute('aria-pressed', 'false');
+    tag.setAttribute('title', `Filter recipes by “${tag.textContent.trim()}”`);
+
+    tag.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleTagFilter(tag);
+    });
+
+    tag.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      event.stopPropagation();
+      toggleTagFilter(tag);
+    });
+  });
 
   filters.forEach(button => button.addEventListener('click', () => {
     cat = button.dataset.filter;
@@ -108,6 +155,13 @@
     direction = direction === 'asc' ? 'desc' : 'asc';
     sortCards();
     applyFilters();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && activeTag) {
+      activeTag = '';
+      applyFilters();
+    }
   });
 
   // Default presentation: alphabetical by displayed recipe name.
