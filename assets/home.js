@@ -28,6 +28,12 @@
   // The former category preset buttons are now represented as ordinary tags.
   document.querySelector('.filters')?.remove();
 
+  // Refresh the homepage introduction as the archive grows beyond simple transcriptions.
+  const intro = document.querySelector('.home-hero .sub');
+  if (intro) {
+    intro.textContent = 'A growing collection of family favorites, handwritten cards, old printouts, and the stories that travel with them. Each recipe keeps the original source close at hand while adding an easier-to-use interactive version, family notes, and clearly labeled variations. This archive is meant to keep growing: if you have a recipe, photo, scan, or memory that belongs here, please contribute it so we can preserve and share it together.';
+  }
+
   // Add a clear contribution path beside the recipe count without changing the static homepage markup.
   const countBadge = document.querySelector('.count-badge');
   if (countBadge && !document.querySelector('.contribute-link')) {
