@@ -1,0 +1,68 @@
+/* Homepage metadata and sorting */
+.sortbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:-10px 0 16px;
+}
+.sort-control{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  font-size:.8rem;
+  font-weight:700;
+}
+.sort-select,
+.sort-direction{
+  border:1px solid var(--line);
+  background:white;
+  color:var(--ink);
+  border-radius:10px;
+  padding:8px 10px;
+  font:inherit;
+}
+.sort-select{cursor:pointer}
+.sort-direction{
+  min-width:112px;
+  cursor:pointer;
+  color:var(--accent);
+  font-weight:750;
+}
+.sort-select:hover,
+.sort-direction:hover,
+.sort-select:focus,
+.sort-direction:focus{
+  border-color:var(--accent2);
+  outline:none;
+}
+.rmeta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:9px;
+}
+.record-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  font-size:.68rem;
+  line-height:1.25;
+  background:#faf6ef;
+  color:#746454;
+  border:1px solid #eadfd2;
+  border-radius:999px;
+  padding:4px 7px;
+}
+.record-tag:first-child{
+  background:#f2e7d8;
+  color:#67513d;
+}
+@media(max-width:600px){
+  .sortbar{justify-content:flex-start;margin-top:-8px}
+  .sort-control{flex:1}
+  .sort-select{flex:1}
+  .sort-direction{min-width:118px}
+}
