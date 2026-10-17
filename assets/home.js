@@ -19,23 +19,48 @@
   const activeTags = new Set();
 
   const normalizeTag = value => String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
+  const textCompare = (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true });
 
-  const textCompare = (a, b) => a.localeCompare(b, undefined, {
-    sensitivity: 'base',
-    numeric: true
-  });
-
-  // The former category preset buttons are now represented as ordinary tags.
+  // The former category preset buttons are represented as ordinary tags instead.
   document.querySelector('.filters')?.remove();
 
-  // Refresh the homepage introduction as the archive grows beyond simple transcriptions.
+  // A warmer invitation for the family archive.
   const intro = document.querySelector('.home-hero .sub');
   if (intro) {
     intro.textContent = 'These are the recipes that have found their way through our family kitchens — the favorites we make again and again, the handwritten cards tucked in drawers, the old printouts with notes in the margins, and the dishes that come with a story. I hope this can be a place to keep those recipes and memories together, share them with one another, and make sure they are not lost along the way. If you have a family recipe, an old card or photo, or simply a memory about something we have always eaten together, please send it along. The more of us who add to this collection, the more it will feel like ours.';
   }
 
-  // Add a clear contribution path beside the recipe count without changing the static homepage markup.
+  // Add newly published recipes that are not yet baked into the original static homepage markup.
+  if (!cards.some(card => card.getAttribute('href') === 'recipes/mug-scrambler.html')) {
+    const card = document.createElement('a');
+    card.className = 'recipe-card';
+    card.href = 'recipes/mug-scrambler.html';
+    card.dataset.name = 'Easy French Toast Egg Mug Scrambler';
+    card.dataset.created = '2026-10-17';
+    card.dataset.updated = '2026-10-17';
+    card.dataset.source = 'Family cookbook';
+    card.dataset.category = 'Breakfast';
+    card.dataset.search = 'easy french toast egg mug scrambler leo favorite breakfast microwave cinnamon swirl bread turkey sausage egg beaters maple syrup barnes noble cookbook kid friendly';
+    card.innerHTML = `
+      <div class="ricon">🍳</div>
+      <div>
+        <div class="rtitle">Easy French Toast Egg Mug Scrambler</div>
+        <div class="rdesc">A quick cinnamon-bread, turkey-sausage, egg, and maple breakfast made in a mug — and Leo's favorite.</div>
+        <div class="rmeta">
+          <span class="record-tag">Source: Family cookbook</span>
+          <span class="record-tag">Created: <time datetime="2026-10-17">Oct 17, 2026</time></span>
+          <span class="record-tag">Updated: <time datetime="2026-10-17">Oct 17, 2026</time></span>
+        </div>
+        <div class="rtags"><span class="tag">Breakfast</span><span class="tag">Microwave</span><span class="tag">Cookbook</span><span class="tag">Leo's favorite</span><span class="tag">Has story</span><span class="tag">Variations</span></div>
+      </div>
+      <div class="arrow">→</div>`;
+    cards.push(card);
+    cardsHost.appendChild(card);
+  }
+
+  // Add a clear contribution path beside the live recipe count.
   const countBadge = document.querySelector('.count-badge');
+  if (countBadge) countBadge.textContent = `${cards.length} recipes`;
   if (countBadge && !document.querySelector('.contribute-link')) {
     const actions = document.createElement('div');
     actions.className = 'home-actions';
@@ -61,19 +86,15 @@
     }
 
     const tagHost = chiliCard.querySelector('.rtags');
-    if (tagHost) {
-      const hasStory = [...tagHost.querySelectorAll('.tag')]
-        .some(tag => normalizeTag(tag.textContent) === 'has story');
-      if (!hasStory) {
-        const storyTag = document.createElement('span');
-        storyTag.className = 'tag';
-        storyTag.textContent = 'Has story';
-        tagHost.appendChild(storyTag);
-      }
+    if (tagHost && ![...tagHost.querySelectorAll('.tag')].some(tag => normalizeTag(tag.textContent) === 'has story')) {
+      const storyTag = document.createElement('span');
+      storyTag.className = 'tag';
+      storyTag.textContent = 'Has story';
+      tagHost.appendChild(storyTag);
     }
   }
 
-  // Make sure each recipe's category is also represented by a visible tag.
+  // Make sure every recipe's category is represented by a visible descriptive tag.
   cards.forEach(card => {
     const category = (card.dataset.category || '').trim();
     const tagHost = card.querySelector('.rtags');
@@ -81,7 +102,6 @@
 
     const alreadyPresent = [...tagHost.querySelectorAll('.tag')]
       .some(tag => normalizeTag(tag.textContent) === normalizeTag(category));
-
     if (!alreadyPresent) {
       const tag = document.createElement('span');
       tag.className = 'tag';
@@ -90,8 +110,7 @@
     }
   });
 
-  // Created and Updated remain visible metadata, but they are no longer filter tags.
-  // Source remains filterable because it is useful across multiple recipes.
+  // Created and Updated remain visible metadata but are not filters. Source remains filterable.
   cards.forEach(card => {
     [...card.querySelectorAll('.record-tag')].forEach(tag => {
       const isSource = tag.textContent.trim().startsWith('Source:');
@@ -99,8 +118,7 @@
     });
   });
 
-  // Flag recipes that were actually revised after creation within the past 30 days.
-  // This tag expires automatically as the update gets older.
+  // Recipes revised after their creation date get a temporary Recently updated tag for 30 days.
   const now = new Date();
   cards.forEach(card => {
     const createdText = card.dataset.created;
@@ -115,9 +133,7 @@
 
     const tagHost = card.querySelector('.rtags');
     if (!tagHost) return;
-    const exists = [...tagHost.querySelectorAll('.tag')]
-      .some(tag => normalizeTag(tag.textContent) === 'recently updated');
-    if (!exists) {
+    if (![...tagHost.querySelectorAll('.tag')].some(tag => normalizeTag(tag.textContent) === 'recently updated')) {
       const recentTag = document.createElement('span');
       recentTag.className = 'tag';
       recentTag.textContent = 'Recently updated';
@@ -133,15 +149,12 @@
   }
 
   function cardTags(card) {
-    return filterableCardTags(card)
-      .map(tag => tag.textContent.trim())
-      .filter(Boolean);
+    return filterableCardTags(card).map(tag => tag.textContent.trim()).filter(Boolean);
   }
 
-  // Build a left-hand browse panel from descriptive tags and sources only.
+  // Build the left-hand browse panel from descriptive tags and sources only.
   const uniqueTags = [...new Map(
-    cards.flatMap(card => cardTags(card))
-      .map(label => [normalizeTag(label), label])
+    cards.flatMap(card => cardTags(card)).map(label => [normalizeTag(label), label])
   ).values()].sort(textCompare);
 
   const browseLayout = document.createElement('div');
@@ -154,8 +167,7 @@
     <div class="tag-panel-title">Browse tags</div>
     <div class="tag-panel-help">Choose one or more tags to narrow the recipes. Dates stay visible on each recipe and remain available in Sort by.</div>
     <div class="tag-cloud"></div>
-    <button class="clear-tag-filter" type="button" hidden>Clear tag filters</button>
-  `;
+    <button class="clear-tag-filter" type="button" hidden>Clear tag filters</button>`;
 
   const tagCloud = tagPanel.querySelector('.tag-cloud');
   uniqueTags.forEach(label => {
@@ -187,36 +199,24 @@
   function updateDirectionLabel() {
     const key = sortBy.value;
     const dateSort = key === 'created' || key === 'updated';
-
     if (dateSort) {
       sortDirection.textContent = direction === 'asc' ? 'Oldest → Newest' : 'Newest → Oldest';
-      sortDirection.setAttribute(
-        'aria-label',
-        direction === 'asc' ? 'Currently oldest to newest; change to newest to oldest' : 'Currently newest to oldest; change to oldest to newest'
-      );
+      sortDirection.setAttribute('aria-label', direction === 'asc' ? 'Currently oldest to newest; change to newest to oldest' : 'Currently newest to oldest; change to oldest to newest');
     } else {
       sortDirection.textContent = direction === 'asc' ? 'A → Z' : 'Z → A';
-      sortDirection.setAttribute(
-        'aria-label',
-        direction === 'asc' ? 'Currently A to Z; change to Z to A' : 'Currently Z to A; change to A to Z'
-      );
+      sortDirection.setAttribute('aria-label', direction === 'asc' ? 'Currently A to Z; change to Z to A' : 'Currently Z to A; change to A to Z');
     }
-
     sortDirection.dataset.direction = direction;
   }
 
   function sortCards() {
     const key = sortBy.value;
     const multiplier = direction === 'asc' ? 1 : -1;
-
     cards.sort((a, b) => {
       const primary = textCompare(sortValue(a, key), sortValue(b, key));
       if (primary !== 0) return primary * multiplier;
-
-      // Keep ties predictable—alphabetical by the displayed recipe name.
       return textCompare(a.dataset.name || '', b.dataset.name || '');
     });
-
     cards.forEach(card => cardsHost.appendChild(card));
     updateDirectionLabel();
   }
@@ -242,14 +242,12 @@
       tag.classList.toggle('tag-filter-active', selected);
       tag.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
-
     clearTagButton.hidden = activeTags.size === 0;
   }
 
   function applyFilters() {
     const q = (search.value || '').trim().toLowerCase();
     let shown = 0;
-
     cards.forEach(card => {
       const haystack = [
         card.dataset.name,
@@ -261,14 +259,10 @@
         ...cardTags(card)
       ].filter(Boolean).join(' ').toLowerCase();
 
-      const okQ = !q || haystack.includes(q);
-      const okTags = cardHasActiveTags(card);
-      const visible = okQ && okTags;
-
+      const visible = (!q || haystack.includes(q)) && cardHasActiveTags(card);
       card.style.display = visible ? 'grid' : 'none';
       if (visible) shown++;
     });
-
     empty.style.display = shown ? 'none' : 'block';
     updateTagState();
   }
@@ -317,18 +311,12 @@
   });
 
   search.addEventListener('input', applyFilters);
-
-  sortBy.addEventListener('change', () => {
-    sortCards();
-    applyFilters();
-  });
-
+  sortBy.addEventListener('change', () => { sortCards(); applyFilters(); });
   sortDirection.addEventListener('click', () => {
     direction = direction === 'asc' ? 'desc' : 'asc';
     sortCards();
     applyFilters();
   });
-
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && activeTags.size) {
       activeTags.clear();
