@@ -9,15 +9,12 @@
   }
 
   const search = document.getElementById('search');
-  const filters = [...document.querySelectorAll('[data-filter]')];
   const cardsHost = document.querySelector('.cards');
   const cards = [...document.querySelectorAll('.recipe-card')];
   const empty = document.getElementById('empty');
   const sortBy = document.getElementById('sortBy');
   const sortDirection = document.getElementById('sortDirection');
-  const tagElements = [...document.querySelectorAll('.recipe-card .tag, .recipe-card .record-tag')];
 
-  let cat = 'all';
   let direction = 'asc';
   let activeTag = '';
 
@@ -27,6 +24,73 @@
     sensitivity: 'base',
     numeric: true
   });
+
+  // The former category preset buttons are now represented as ordinary tags.
+  document.querySelector('.filters')?.remove();
+
+  // Make sure each recipe's category is also represented by a visible tag.
+  cards.forEach(card => {
+    const category = (card.dataset.category || '').trim();
+    const tagHost = card.querySelector('.rtags');
+    if (!category || !tagHost) return;
+
+    const alreadyPresent = [...tagHost.querySelectorAll('.tag')]
+      .some(tag => normalizeTag(tag.textContent) === normalizeTag(category));
+
+    if (!alreadyPresent) {
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = category;
+      tagHost.prepend(tag);
+    }
+  });
+
+  function cardTags(card) {
+    return [...card.querySelectorAll('.tag, .record-tag')]
+      .map(tag => tag.textContent.trim())
+      .filter(Boolean);
+  }
+
+  // Build a left-hand browse panel from every unique tag currently on the recipe cards.
+  const uniqueTags = [...new Map(
+    cards.flatMap(card => cardTags(card))
+      .map(label => [normalizeTag(label), label])
+  ).values()].sort(textCompare);
+
+  const browseLayout = document.createElement('div');
+  browseLayout.className = 'browse-layout';
+
+  const tagPanel = document.createElement('aside');
+  tagPanel.className = 'tag-panel';
+  tagPanel.setAttribute('aria-label', 'Browse recipes by tag');
+  tagPanel.innerHTML = `
+    <div class="tag-panel-title">Browse tags</div>
+    <div class="tag-panel-help">Choose a tag to show matching recipes. Choose it again to clear.</div>
+    <div class="tag-cloud"></div>
+    <button class="clear-tag-filter" type="button" hidden>Clear tag filter</button>
+  `;
+
+  const tagCloud = tagPanel.querySelector('.tag-cloud');
+  uniqueTags.forEach(label => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'cloud-tag tag-filterable';
+    button.textContent = label;
+    button.dataset.tag = normalizeTag(label);
+    button.setAttribute('aria-pressed', 'false');
+    button.setAttribute('title', `Filter recipes by “${label}”`);
+    tagCloud.appendChild(button);
+  });
+
+  const results = document.createElement('div');
+  results.className = 'recipe-results';
+  cardsHost.parentNode.insertBefore(browseLayout, cardsHost);
+  browseLayout.appendChild(tagPanel);
+  browseLayout.appendChild(results);
+  results.appendChild(cardsHost);
+  results.appendChild(empty);
+
+  const clearTagButton = tagPanel.querySelector('.clear-tag-filter');
 
   function sortValue(card, key) {
     if (key === 'created' || key === 'updated') return card.dataset[key] || '';
@@ -72,16 +136,22 @@
 
   function cardHasActiveTag(card) {
     if (!activeTag) return true;
-    return [...card.querySelectorAll('.tag, .record-tag')]
-      .some(tag => normalizeTag(tag.textContent) === activeTag);
+    return cardTags(card).some(label => normalizeTag(label) === activeTag);
+  }
+
+  function allFilterableTags() {
+    return [...document.querySelectorAll('.recipe-card .tag, .recipe-card .record-tag, .cloud-tag')];
   }
 
   function updateTagState() {
-    tagElements.forEach(tag => {
-      const selected = !!activeTag && normalizeTag(tag.textContent) === activeTag;
+    allFilterableTags().forEach(tag => {
+      const value = tag.dataset.tag || normalizeTag(tag.textContent);
+      const selected = !!activeTag && value === activeTag;
       tag.classList.toggle('tag-filter-active', selected);
       tag.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
+
+    clearTagButton.hidden = !activeTag;
   }
 
   function applyFilters() {
@@ -95,13 +165,13 @@
         card.dataset.source,
         card.dataset.category,
         card.dataset.created,
-        card.dataset.updated
+        card.dataset.updated,
+        ...cardTags(card)
       ].filter(Boolean).join(' ').toLowerCase();
 
-      const okCat = cat === 'all' || card.dataset.category === cat;
       const okQ = !q || haystack.includes(q);
       const okTag = cardHasActiveTag(card);
-      const visible = okCat && okQ && okTag;
+      const visible = okQ && okTag;
 
       card.style.display = visible ? 'grid' : 'none';
       if (visible) shown++;
@@ -111,13 +181,14 @@
     updateTagState();
   }
 
-  function toggleTagFilter(tag) {
-    const value = normalizeTag(tag.textContent);
-    activeTag = activeTag === value ? '' : value;
+  function setTagFilter(value) {
+    const normalized = normalizeTag(value);
+    activeTag = activeTag === normalized ? '' : normalized;
     applyFilters();
   }
 
-  tagElements.forEach(tag => {
+  // Tile tags remain clickable while the card itself still opens normally elsewhere.
+  document.querySelectorAll('.recipe-card .tag, .recipe-card .record-tag').forEach(tag => {
     tag.classList.add('tag-filterable');
     tag.setAttribute('role', 'button');
     tag.setAttribute('tabindex', '0');
@@ -127,22 +198,25 @@
     tag.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      toggleTagFilter(tag);
+      setTagFilter(tag.textContent);
     });
 
     tag.addEventListener('keydown', event => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       event.preventDefault();
       event.stopPropagation();
-      toggleTagFilter(tag);
+      setTagFilter(tag.textContent);
     });
   });
 
-  filters.forEach(button => button.addEventListener('click', () => {
-    cat = button.dataset.filter;
-    filters.forEach(other => other.classList.toggle('active', other === button));
+  tagCloud.querySelectorAll('.cloud-tag').forEach(tag => {
+    tag.addEventListener('click', () => setTagFilter(tag.dataset.tag));
+  });
+
+  clearTagButton.addEventListener('click', () => {
+    activeTag = '';
     applyFilters();
-  }));
+  });
 
   search.addEventListener('input', applyFilters);
 
