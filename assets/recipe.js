@@ -18,6 +18,7 @@
     'jiaozi': 'Jiaozi.pdf',
     'mayo': 'Mayo.pdf',
     'mochi-brownies': 'Mochi%20Brownies.pdf',
+    'mug-scrambler': 'Mug%20Scrambler.pdf',
     'pancakes': 'Pancakes.pdf',
     'pozole': 'Pozole.pdf',
     'steel-cut-oats': 'Steel%20cut%20oats.pdf',
