@@ -21,44 +21,63 @@
   const normalizeTag = value => String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
   const textCompare = (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true });
 
-  // The former category preset buttons are represented as ordinary tags instead.
   document.querySelector('.filters')?.remove();
 
-  // A warmer invitation for the family archive.
   const intro = document.querySelector('.home-hero .sub');
   if (intro) {
     intro.textContent = 'These are the recipes that have found their way through our family kitchens — the favorites we make again and again, the handwritten cards tucked in drawers, the old printouts with notes in the margins, and the dishes that come with a story. I hope this can be a place to keep those recipes and memories together, share them with one another, and make sure they are not lost along the way. If you have a family recipe, an old card or photo, or simply a memory about something we have always eaten together, please send it along. The more of us who add to this collection, the more it will feel like ours.';
   }
 
-  // Add newly published recipes that are not yet baked into the original static homepage markup.
-  if (!cards.some(card => card.getAttribute('href') === 'recipes/mug-scrambler.html')) {
+  function addRecipeCard({href, name, source, category, searchText, icon, description, tags, created='2026-10-17', updated='2026-10-17'}) {
+    if (cards.some(card => card.getAttribute('href') === href)) return;
     const card = document.createElement('a');
     card.className = 'recipe-card';
-    card.href = 'recipes/mug-scrambler.html';
-    card.dataset.name = 'Easy French Toast Egg Mug Scrambler';
-    card.dataset.created = '2026-10-17';
-    card.dataset.updated = '2026-10-17';
-    card.dataset.source = 'Family cookbook';
-    card.dataset.category = 'Breakfast';
-    card.dataset.search = 'easy french toast egg mug scrambler leo favorite breakfast microwave cinnamon swirl bread turkey sausage egg beaters maple syrup barnes noble cookbook kid friendly';
+    card.href = href;
+    card.dataset.name = name;
+    card.dataset.created = created;
+    card.dataset.updated = updated;
+    card.dataset.source = source;
+    card.dataset.category = category;
+    card.dataset.search = searchText;
     card.innerHTML = `
-      <div class="ricon">🍳</div>
+      <div class="ricon">${icon}</div>
       <div>
-        <div class="rtitle">Easy French Toast Egg Mug Scrambler</div>
-        <div class="rdesc">A quick cinnamon-bread, turkey-sausage, egg, and maple breakfast made in a mug — and Leo's favorite.</div>
+        <div class="rtitle">${name}</div>
+        <div class="rdesc">${description}</div>
         <div class="rmeta">
-          <span class="record-tag">Source: Family cookbook</span>
-          <span class="record-tag">Created: <time datetime="2026-10-17">Oct 17, 2026</time></span>
-          <span class="record-tag">Updated: <time datetime="2026-10-17">Oct 17, 2026</time></span>
+          <span class="record-tag">Source: ${source}</span>
+          <span class="record-tag">Created: <time datetime="${created}">Oct 17, 2026</time></span>
+          <span class="record-tag">Updated: <time datetime="${updated}">Oct 17, 2026</time></span>
         </div>
-        <div class="rtags"><span class="tag">Breakfast</span><span class="tag">Microwave</span><span class="tag">Cookbook</span><span class="tag">Leo's favorite</span><span class="tag">Has story</span><span class="tag">Variations</span></div>
+        <div class="rtags">${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
       </div>
       <div class="arrow">→</div>`;
     cards.push(card);
     cardsHost.appendChild(card);
   }
 
-  // Add a clear contribution path beside the live recipe count.
+  addRecipeCard({
+    href: 'recipes/mug-scrambler.html',
+    name: 'Easy French Toast Egg Mug Scrambler',
+    source: 'Family cookbook',
+    category: 'Breakfast',
+    searchText: 'easy french toast egg mug scrambler leo favorite breakfast microwave cinnamon swirl bread turkey sausage fresh eggs egg beaters maple syrup barnes noble cookbook kid friendly',
+    icon: '🍳',
+    description: "A quick cinnamon-bread, turkey-sausage, egg, and maple breakfast made in a mug — and Leo's favorite.",
+    tags: ['Breakfast', 'Microwave', 'Cookbook', "Leo's favorite", 'Has story', 'Variations']
+  });
+
+  addRecipeCard({
+    href: 'recipes/overnight-white-bread.html',
+    name: 'Overnight White Bread',
+    source: 'Ken Forkish',
+    category: 'Breads',
+    searchText: 'overnight white bread ken forkish flour water salt yeast artisan bread dutch oven pandemic michael handwritten one loaf weeknight long fermentation',
+    icon: '🥖',
+    description: 'A long-fermented artisan white bread made with exactly four ingredients: flour, water, salt, and yeast.',
+    tags: ['Breads', 'Artisan bread', 'Overnight', 'Dutch oven', 'Cookbook', 'Handwritten notes', 'Has story', 'Variations']
+  });
+
   const countBadge = document.querySelector('.count-badge');
   if (countBadge) countBadge.textContent = `${cards.length} recipes`;
   if (countBadge && !document.querySelector('.contribute-link')) {
@@ -74,16 +93,12 @@
     actions.appendChild(contribute);
   }
 
-  // Recipe metadata updates that should appear on the homepage immediately.
   const chiliCard = cards.find(card => card.getAttribute('href') === 'recipes/crockpot-chili.html');
   if (chiliCard) {
     chiliCard.dataset.updated = '2026-10-17';
-
     const updatedTag = [...chiliCard.querySelectorAll('.record-tag')]
       .find(tag => tag.textContent.trim().startsWith('Updated:'));
-    if (updatedTag) {
-      updatedTag.innerHTML = 'Updated: <time datetime="2026-10-17">Oct 17, 2026</time>';
-    }
+    if (updatedTag) updatedTag.innerHTML = 'Updated: <time datetime="2026-10-17">Oct 17, 2026</time>';
 
     const tagHost = chiliCard.querySelector('.rtags');
     if (tagHost && ![...tagHost.querySelectorAll('.tag')].some(tag => normalizeTag(tag.textContent) === 'has story')) {
@@ -94,12 +109,10 @@
     }
   }
 
-  // Make sure every recipe's category is represented by a visible descriptive tag.
   cards.forEach(card => {
     const category = (card.dataset.category || '').trim();
     const tagHost = card.querySelector('.rtags');
     if (!category || !tagHost) return;
-
     const alreadyPresent = [...tagHost.querySelectorAll('.tag')]
       .some(tag => normalizeTag(tag.textContent) === normalizeTag(category));
     if (!alreadyPresent) {
@@ -110,7 +123,6 @@
     }
   });
 
-  // Created and Updated remain visible metadata but are not filters. Source remains filterable.
   cards.forEach(card => {
     [...card.querySelectorAll('.record-tag')].forEach(tag => {
       const isSource = tag.textContent.trim().startsWith('Source:');
@@ -118,19 +130,16 @@
     });
   });
 
-  // Recipes revised after their creation date get a temporary Recently updated tag for 30 days.
   const now = new Date();
   cards.forEach(card => {
     const createdText = card.dataset.created;
     const updatedText = card.dataset.updated;
     if (!createdText || !updatedText) return;
-
     const created = new Date(`${createdText}T00:00:00`);
     const updated = new Date(`${updatedText}T00:00:00`);
     const ageDays = (now - updated) / 86400000;
     const isRecentRevision = updated > created && ageDays >= 0 && ageDays <= 30;
     if (!isRecentRevision) return;
-
     const tagHost = card.querySelector('.rtags');
     if (!tagHost) return;
     if (![...tagHost.querySelectorAll('.tag')].some(tag => normalizeTag(tag.textContent) === 'recently updated')) {
@@ -152,7 +161,6 @@
     return filterableCardTags(card).map(tag => tag.textContent.trim()).filter(Boolean);
   }
 
-  // Build the left-hand browse panel from descriptive tags and sources only.
   const uniqueTags = [...new Map(
     cards.flatMap(card => cardTags(card)).map(label => [normalizeTag(label), label])
   ).values()].sort(textCompare);
@@ -258,7 +266,6 @@
         card.dataset.updated,
         ...cardTags(card)
       ].filter(Boolean).join(' ').toLowerCase();
-
       const visible = (!q || haystack.includes(q)) && cardHasActiveTags(card);
       card.style.display = visible ? 'grid' : 'none';
       if (visible) shown++;
@@ -274,7 +281,6 @@
     applyFilters();
   }
 
-  // Descriptive tags and Source are clickable. Created/Updated remain display-only metadata.
   const tileFilterTags = [
     ...document.querySelectorAll('.recipe-card .tag'),
     ...document.querySelectorAll('.recipe-card .record-tag[data-filterable="true"]')
@@ -286,13 +292,11 @@
     tag.setAttribute('tabindex', '0');
     tag.setAttribute('aria-pressed', 'false');
     tag.setAttribute('title', `Add or remove “${tag.textContent.trim()}” from the recipe filters`);
-
     tag.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
       toggleTagFilter(tag.textContent);
     });
-
     tag.addEventListener('keydown', event => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       event.preventDefault();
@@ -324,7 +328,6 @@
     }
   });
 
-  // Default presentation: alphabetical by displayed recipe name.
   sortCards();
   applyFilters();
 })();

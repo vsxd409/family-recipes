@@ -18,6 +18,7 @@
     'mayo': 'Mayo.pdf',
     'mochi-brownies': 'Mochi%20Brownies.pdf',
     'mug-scrambler': 'Mug%20Scrambler.jpg',
+    'overnight-white-bread': 'Overnight%20White%20Bread%20-%20family%20notes.html',
     'pancakes': 'Pancakes.pdf',
     'pozole': 'Pozole.pdf',
     'steel-cut-oats': 'Steel%20cut%20oats.pdf',
@@ -31,7 +32,9 @@
     link.href = '../sources/' + scanMap[R.slug];
     link.target = '_blank';
     link.rel = 'noopener';
-    link.textContent = R.slug === 'mug-scrambler' ? '▤ View source page' : '▤ View original scan';
+    if (R.slug === 'mug-scrambler') link.textContent = '▤ View source page';
+    else if (R.slug === 'overnight-white-bread') link.textContent = '▤ View family notes';
+    else link.textContent = '▤ View original scan';
     archivedScan.replaceWith(link);
   }
 
