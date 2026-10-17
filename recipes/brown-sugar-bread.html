@@ -27,7 +27,7 @@
 <div class="grid">
 <aside class="card controls">
 <h2>Customize</h2>
-<h3>Loaf size</h3><div class="seg" id="sizes"><button data-size="1">1 lb</button><button class="active" data-size="1.5">1.5 lb</button><button data-size="2">2 lb</button></div>
+<h3>Loaf size</h3><div class="seg" id="sizes"><button data-size="1">1 pound</button><button class="active" data-size="1.5">1.5 pounds</button><button data-size="2">2 pounds</button></div>
 <h3>Quick presets</h3><div class="preset-row"><button class="preset" data-preset="base">Base</button><button class="preset" data-preset="sesame">Toasted Sesame</button><button class="preset" data-preset="cinnamonpecan">Cinnamon Pecan</button><button class="preset" data-preset="orangecran">Orange Cranberry</button><button class="preset" data-preset="savory">Rosemary Pepper</button></div>
 <h3>Add-ins</h3>
 <label class="toggle"><input type="checkbox" data-addon="sesameOil"><span><strong>Toasted sesame oil</strong><span>Replaces part of the neutral oil for aroma throughout the crumb.</span></span></label>
@@ -40,23 +40,77 @@
 <label class="toggle"><input type="checkbox" data-addon="pepper"><span><strong>Black pepper</strong><span>Pairs naturally with rosemary.</span></span></label>
 </aside>
 <main class="card recipe">
-<div class="recipe-head"><div><h2 id="recipeTitle" style="margin-bottom:5px">Brown Sugar Bread — 1.5 lb</h2><div class="meta">KBS MBF-010 • Basic/White cycle • Medium crust</div></div><div class="badge" id="variantBadge">Base loaf</div></div>
+<div class="recipe-head"><div><h2 id="recipeTitle" style="margin-bottom:5px">Brown Sugar Bread — 1.5-pound loaf</h2><div class="meta">KBS MBF-010 • Basic/White cycle • Medium crust</div></div><div class="badge" id="variantBadge">Base loaf</div></div>
 <h3>Ingredients</h3><div id="ingredients"></div>
 <h3>Method</h3><ol id="method"></ol>
-<div class="note">During the first knead, look for a smooth, elastic, slightly tacky dough ball. If it smears heavily, add flour 1 Tbsp at a time. If it is stiff or dry, add water 1 tsp at a time.</div>
+<div class="note">During the first knead, look for a smooth, elastic, slightly tacky dough ball. If it smears heavily, add flour 1 tablespoon at a time. If it is stiff or dry, add water 1 teaspoon at a time.</div>
 <div class="toolbar"><button class="smallbtn" id="resetChecks">Uncheck all</button><button class="smallbtn" onclick="window.print()">Print recipe</button></div>
 </main></div></div>
 <script>
-const base={water:{name:"Water, lukewarm",qty:266,common:{1:"3/4 cup",1.5:"1 cup + 2 Tbsp",2:"1 1/2 cups"}},oil:{name:"Neutral oil",qty:28,common:{1:"1 Tbsp + 1 tsp",1.5:"2 Tbsp",2:"2 Tbsp + 2 tsp"}},sugar:{name:"Brown sugar, packed",qty:53,common:{1:"2 Tbsp + 2 tsp",1.5:"1/4 cup",2:"1/3 cup"}},flour:{name:"King Arthur Bread Flour",qty:360,common:{1:"2 cups",1.5:"3 cups",2:"4 cups"}},salt:{name:"Fine salt",qty:7,common:{1:"3/4 tsp",1.5:"1 1/4 tsp",2:"1 2/3 tsp"}},yeast:{name:"Bread-machine or instant yeast",qty:6,common:{1:"1 1/3 tsp",1.5:"2 tsp",2:"2 2/3 tsp"}}};
-const addons={sesameOil:{name:"Toasted sesame oil",baseQty:1,unit:"tsp",desc:"substitute for part of the neutral oil"},sesameSeeds:{name:"Toasted sesame seeds",baseQty:2,unit:"Tbsp",desc:"load into automatic dispenser"},cinnamon:{name:"Ground cinnamon",baseQty:1.5,unit:"tsp"},pecans:{name:"Toasted pecans, chopped",baseQty:.5,unit:"cup",desc:"load into automatic dispenser"},cranberries:{name:"Dried cranberries",baseQty:.5,unit:"cup",desc:"load into automatic dispenser"},orangeZest:{name:"Finely grated orange zest",baseQty:1.5,unit:"tsp"},rosemary:{name:"Rosemary, finely chopped",baseQty:1.25,unit:"tsp"},pepper:{name:"Coarse black pepper",baseQty:.5,unit:"tsp"}};
+const base={
+  water:{name:"Water, lukewarm",common:{1:"3/4 cup",1.5:"1 cup + 2 tablespoons",2:"1 1/2 cups"}},
+  oil:{name:"Neutral oil",common:{1:"1 tablespoon + 1 teaspoon",1.5:"2 tablespoons",2:"2 tablespoons + 2 teaspoons"}},
+  sugar:{name:"Brown sugar, packed",common:{1:"2 tablespoons + 2 teaspoons",1.5:"1/4 cup",2:"1/3 cup"}},
+  flour:{name:"King Arthur Bread Flour",common:{1:"2 cups",1.5:"3 cups",2:"4 cups"}},
+  salt:{name:"Fine salt",common:{1:"3/4 teaspoon",1.5:"1 1/4 teaspoons",2:"1 2/3 teaspoons"}},
+  yeast:{name:"Bread-machine or instant yeast",common:{1:"1 1/3 teaspoons",1.5:"2 teaspoons",2:"2 2/3 teaspoons"}}
+};
+const oilTeaspoons={1:4,1.5:6,2:8};
+const addons={
+  sesameOil:{name:"Toasted sesame oil",baseQty:1,unit:"teaspoon",desc:"substitute for part of the neutral oil"},
+  sesameSeeds:{name:"Toasted sesame seeds",baseQty:2,unit:"tablespoon",desc:"load into automatic dispenser"},
+  cinnamon:{name:"Ground cinnamon",baseQty:1.5,unit:"teaspoon"},
+  pecans:{name:"Toasted pecans, chopped",baseQty:.5,unit:"cup",desc:"load into automatic dispenser"},
+  cranberries:{name:"Dried cranberries",baseQty:.5,unit:"cup",desc:"load into automatic dispenser"},
+  orangeZest:{name:"Finely grated orange zest",baseQty:1.5,unit:"teaspoon"},
+  rosemary:{name:"Rosemary, finely chopped",baseQty:1.25,unit:"teaspoon"},
+  pepper:{name:"Coarse black pepper",baseQty:.5,unit:"teaspoon"}
+};
 let loaf=1.5,checked=new Set();
-const frac=n=>{const r=Math.round(n*8)/8,w=Math.floor(r+1e-9),rem=Math.round((r-w)*8),m={0:"",1:"1/8",2:"1/4",3:"3/8",4:"1/2",5:"5/8",6:"3/4",7:"7/8"};return rem===0?String(w):(w?w+" ":"")+m[rem]};
-function addonAmount(key){const a=addons[key],q=a.baseQty*(loaf/1.5);if(a.unit==="cup"){if(Math.abs(q-1/3)<.03)return"1/3 cup";if(Math.abs(q-.5)<.03)return"1/2 cup";if(Math.abs(q-2/3)<.03)return"2/3 cup";return frac(q)+" cup"}return frac(q)+" "+a.unit}
+const frac=n=>{
+  if(Math.abs(n-Math.round(n))<.01)return String(Math.round(n));
+  const whole=Math.floor(n+1e-9),rem=n-whole,dens=[2,3,4,6,8,12,16];let best=null;
+  for(const d of dens){const num=Math.round(rem*d);if(!num||num===d)continue;const err=Math.abs(rem-num/d);if(!best||err<best.err)best={num,d,err}}
+  if(best&&best.err<.02){const gcd=(a,b)=>b?gcd(b,a%b):a,g=gcd(best.num,best.d),part=`${best.num/g}/${best.d/g}`;return (whole?whole+" ":"")+part}
+  return String(Math.round(n*100)/100)
+};
+function unitLabel(unit,n){const plurals={cup:"cups",tablespoon:"tablespoons",teaspoon:"teaspoons"};return Math.abs(n)<=1.00001?unit:(plurals[unit]||unit+"s")}
+function addonAmount(key){const a=addons[key],q=a.baseQty*(loaf/1.5);return `${frac(q)} ${unitLabel(a.unit,q)}`}
+function volumeFromTeaspoons(total){
+  const tablespoons=Math.floor(total/3+1e-9),teaspoons=total-(tablespoons*3),parts=[];
+  if(tablespoons>0)parts.push(`${frac(tablespoons)} ${unitLabel("tablespoon",tablespoons)}`);
+  if(teaspoons>.01)parts.push(`${frac(teaspoons)} ${unitLabel("teaspoon",teaspoons)}`);
+  return parts.join(" + ")||"0 teaspoons";
+}
 function variantName(active){const s=new Set(active);if(!active.length)return"Base loaf";if(s.has("sesameOil")&&s.has("sesameSeeds")&&active.length===2)return"Toasted sesame";if(s.has("cinnamon")&&s.has("pecans")&&active.length===2)return"Cinnamon pecan";if(s.has("cranberries")&&s.has("orangeZest")&&active.length===2)return"Orange cranberry";if(s.has("rosemary")&&s.has("pepper")&&active.length===2)return"Rosemary pepper";return active.length+" add-in"+(active.length===1?"":"s")}
-function render(){const factor=loaf/1.5,active=[...document.querySelectorAll('[data-addon]:checked')].map(x=>x.dataset.addon);document.getElementById("recipeTitle").textContent=`Brown Sugar Bread — ${loaf} lb`;document.getElementById("variantBadge").textContent=variantName(active);const list=[];
-for(const[key,v]of Object.entries(base)){let grams=Math.round(v.qty*factor),name=v.name,desc="",amount=`${v.common[loaf]} (${grams} g)`;if(key==="oil"&&active.includes("sesameOil")){const st=addons.sesameOil.baseQty*factor;grams=Math.max(0,Math.round(grams-st*4.5));amount=`${grams} g`;desc="reduced to make room for toasted sesame oil"}list.push({id:key,name,amount,desc})}
-active.forEach(key=>{const a=addons[key];list.push({id:"add-"+key,name:a.name,amount:addonAmount(key),desc:a.desc||""})});const host=document.getElementById("ingredients");host.innerHTML="";list.forEach(item=>{const row=document.createElement("label");row.className="ingredient"+(checked.has(item.id)?" checked":"");row.innerHTML=`<input type="checkbox" ${checked.has(item.id)?"checked":""} data-ing="${item.id}"><span><span class="iname">${item.name}</span>${item.desc?`<span class="idesc">${item.desc}</span>`:""}</span><span class="amount">${item.amount}</span>`;host.appendChild(row)});document.querySelectorAll("[data-ing]").forEach(cb=>cb.addEventListener("change",e=>{e.target.checked?checked.add(e.target.dataset.ing):checked.delete(e.target.dataset.ing);e.target.closest(".ingredient").classList.toggle("checked",e.target.checked)}));
-const method=["Add water and oils to the bread pan first, followed by brown sugar.","Add bread flour, then salt. Make a small indentation in the flour and add the yeast, keeping it away from the liquid until mixing begins.",`Select the Basic/White cycle, ${loaf} lb loaf size, and Medium crust.`];if(active.some(x=>["sesameSeeds","pecans","cranberries"].includes(x))){const names=active.filter(x=>["sesameSeeds","pecans","cranberries"].includes(x)).map(x=>addons[x].name.toLowerCase());method.push(`Load ${names.join(", ")} into the MBF-010 automatic fruit/nut dispenser. Make sure all add-ins are cool and dry.`)}if(active.some(x=>["cinnamon","orangeZest","rosemary","pepper"].includes(x)))method.push("Add dry spices and zest with the flour so they distribute evenly through the dough.");method.push("Check the dough during the first knead. It should form a smooth, elastic, slightly tacky ball that clears most of the pan.","When the cycle finishes, remove the loaf promptly and cool on a rack before slicing.");document.getElementById("method").innerHTML=method.map(x=>`<li>${x}</li>`).join("")}
+function render(){
+  const factor=loaf/1.5,active=[...document.querySelectorAll('[data-addon]:checked')].map(x=>x.dataset.addon);
+  document.getElementById("recipeTitle").textContent=`Brown Sugar Bread — ${loaf}-pound loaf`;
+  document.getElementById("variantBadge").textContent=variantName(active);
+  const list=[];
+  for(const[key,v]of Object.entries(base)){
+    let name=v.name,desc="",amount=v.common[loaf];
+    if(key==="oil"&&active.includes("sesameOil")){
+      const sesameAmount=addons.sesameOil.baseQty*factor;
+      amount=volumeFromTeaspoons(Math.max(0,oilTeaspoons[loaf]-sesameAmount));
+      desc="reduced to make room for toasted sesame oil";
+    }
+    list.push({id:key,name,amount,desc});
+  }
+  active.forEach(key=>{const a=addons[key];list.push({id:"add-"+key,name:a.name,amount:addonAmount(key),desc:a.desc||""})});
+  const host=document.getElementById("ingredients");host.innerHTML="";
+  list.forEach(item=>{const row=document.createElement("label");row.className="ingredient"+(checked.has(item.id)?" checked":"");row.innerHTML=`<input type="checkbox" ${checked.has(item.id)?"checked":""} data-ing="${item.id}"><span><span class="iname">${item.name}</span>${item.desc?`<span class="idesc">${item.desc}</span>`:""}</span><span class="amount">${item.amount}</span>`;host.appendChild(row)});
+  document.querySelectorAll("[data-ing]").forEach(cb=>cb.addEventListener("change",e=>{e.target.checked?checked.add(e.target.dataset.ing):checked.delete(e.target.dataset.ing);e.target.closest(".ingredient").classList.toggle("checked",e.target.checked)}));
+  const method=[
+    "Add water and oils to the bread pan first, followed by brown sugar.",
+    "Add bread flour, then salt. Make a small indentation in the flour and add the yeast, keeping it away from the liquid until mixing begins.",
+    `Select the Basic/White cycle, ${loaf}-pound loaf size, and Medium crust.`
+  ];
+  if(active.some(x=>["sesameSeeds","pecans","cranberries"].includes(x))){const names=active.filter(x=>["sesameSeeds","pecans","cranberries"].includes(x)).map(x=>addons[x].name.toLowerCase());method.push(`Load ${names.join(", ")} into the MBF-010 automatic fruit/nut dispenser. Make sure all add-ins are cool and dry.`)}
+  if(active.some(x=>["cinnamon","orangeZest","rosemary","pepper"].includes(x)))method.push("Add dry spices and zest with the flour so they distribute evenly through the dough.");
+  method.push("Check the dough during the first knead. It should form a smooth, elastic, slightly tacky ball that clears most of the pan.","When the cycle finishes, remove the loaf promptly and cool on a rack before slicing.");
+  document.getElementById("method").innerHTML=method.map(x=>`<li>${x}</li>`).join("");
+}
 document.getElementById("sizes").addEventListener("click",e=>{if(!e.target.dataset.size)return;loaf=Number(e.target.dataset.size);document.querySelectorAll("#sizes button").forEach(b=>b.classList.toggle("active",b===e.target));checked.clear();render()});document.querySelectorAll("[data-addon]").forEach(cb=>cb.addEventListener("change",()=>{checked.clear();render()}));const presets={base:[],sesame:["sesameOil","sesameSeeds"],cinnamonpecan:["cinnamon","pecans"],orangecran:["orangeZest","cranberries"],savory:["rosemary","pepper"]};document.querySelectorAll("[data-preset]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("[data-addon]").forEach(cb=>cb.checked=presets[btn.dataset.preset].includes(cb.dataset.addon));checked.clear();render()}));document.getElementById("resetChecks").addEventListener("click",()=>{checked.clear();render()});render();
 </script>
 </body></html>
