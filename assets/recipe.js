@@ -19,6 +19,7 @@
     'mochi-brownies': 'Mochi%20Brownies.pdf',
     'mug-scrambler': 'Mug%20Scrambler.jpg',
     'overnight-white-bread': 'Overnight%20White%20Bread%20-%20family%20notes.html',
+    'same-day-straight-pizza-dough': 'Same-Day%20Straight%20Pizza%20Dough%20-%20family%20notes.html',
     'pancakes': 'Pancakes.pdf',
     'pozole': 'Pozole.pdf',
     'steel-cut-oats': 'Steel%20cut%20oats.pdf',
@@ -33,7 +34,7 @@
     link.target = '_blank';
     link.rel = 'noopener';
     if (R.slug === 'mug-scrambler') link.textContent = '▤ View source page';
-    else if (R.slug === 'overnight-white-bread') link.textContent = '▤ View family notes';
+    else if (R.slug === 'overnight-white-bread' || R.slug === 'same-day-straight-pizza-dough') link.textContent = '▤ View family notes';
     else link.textContent = '▤ View original scan';
     archivedScan.replaceWith(link);
   }
