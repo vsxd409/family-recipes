@@ -75,7 +75,8 @@
     searchText: 'overnight white bread ken forkish flour water salt yeast artisan bread dutch oven pandemic michael handwritten one loaf weeknight long fermentation',
     icon: '🥖',
     description: 'A long-fermented artisan white bread made with exactly four ingredients: flour, water, salt, and yeast.',
-    tags: ['Breads', 'Artisan bread', 'Overnight', 'Dutch oven', 'Cookbook', 'Handwritten notes', 'Has story', 'Variations']
+    tags: ['Dairy-free', 'Breads', 'Artisan bread', 'Overnight', 'Dutch oven', 'Cookbook', 'Handwritten notes', 'Has story', 'Variations'],
+    updated: '2026-10-23'
   });
 
   addRecipeCard({
@@ -86,7 +87,8 @@
     searchText: 'same day straight pizza dough ken forkish flour water salt yeast family pizza night morning dough fermentation pizza artisan dough next day focaccia iron skillet',
     icon: '🍕',
     description: 'A daytime-fermented pizza dough mixed in the morning and ready for family pizza night that evening.',
-    tags: ['Breads', 'Pizza', 'Artisan dough', 'Same-day', 'Cookbook', 'Has story', 'Variations']
+    tags: ['Dairy-free', 'Breads', 'Pizza', 'Artisan dough', 'Same-day', 'Cookbook', 'Has story', 'Variations'],
+    updated: '2026-10-23'
   });
 
   const countBadge = document.querySelector('.count-badge');
