@@ -63,6 +63,9 @@
   }
 
   const title=document.getElementById('recipeTitle'); if(title) title.textContent=R.title;
+  const pageHeading=document.querySelector('header h1');
+  const baseHeading=pageHeading?.textContent||R.title;
+  const originalDocumentTitle=document.title;
   const badge=document.getElementById('yieldBadge');
   const factorButtons=document.querySelectorAll('[data-factor]');
   factorButtons.forEach(b=>{ b.addEventListener('click',()=>{state.factor=Number(b.dataset.factor);state.ingredients=[];state.steps=[];save();render();}); });
@@ -95,16 +98,22 @@
   }
 
   function updatePresetState(){
-    const buttons=document.querySelectorAll('[data-preset]'); if(!buttons.length) return;
+    const presets=R.presets||[];
+    if(!presets.length) return; // Recipes without named quick presets keep their original title.
     const activeKeys=(R.options||[]).filter(o=>active(o.key)).map(o=>o.key).sort();
     const eq=(a,b)=>a.length===b.length && a.every((v,i)=>v===b[i]);
     const baseKeys=(R.options||[]).filter(o=>o.default).map(o=>o.key).sort();
-    buttons.forEach(btn=>{
-      let keys;
-      if(btn.dataset.preset==='__base') keys=baseKeys;
-      else keys=((R.presets||[]).find(p=>p.key===btn.dataset.preset)?.options||[]).slice().sort();
-      btn.classList.toggle('active',eq(activeKeys,keys));
+    const isBase=eq(activeKeys,baseKeys);
+    // A preset name applies only when its complete option set is selected.
+    // Individual creative add-ins, or combinations not matching a preset, retain the base title.
+    const selected=isBase?null:presets.find(p=>eq(activeKeys,(p.options||[]).slice().sort()));
+    document.querySelectorAll('[data-preset]').forEach(btn=>{
+      btn.classList.toggle('active',selected?btn.dataset.preset===selected.key:btn.dataset.preset==='__base'&&isBase);
     });
+    const displayTitle=selected?(selected.title||`${R.title} — ${selected.label}`):R.title;
+    if(title) title.textContent=displayTitle;
+    if(pageHeading) pageHeading.textContent=selected?displayTitle:baseHeading;
+    document.title=selected?`${displayTitle} · Family Recipes`:originalDocumentTitle;
   }
 
   function render(){
