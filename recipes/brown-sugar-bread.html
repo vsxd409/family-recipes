@@ -16,7 +16,8 @@
   .toggle{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:9px 0;border-bottom:1px dashed var(--line)}.toggle:last-child{border-bottom:0}input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);margin-top:2px}.toggle strong{display:block;font-size:.96rem}.toggle span{display:block;color:var(--muted);font-size:.82rem;line-height:1.35;margin-top:2px}
   .preset-row{display:flex;flex-wrap:wrap;gap:7px}.preset{padding:7px 10px;font-size:.84rem}.preset:hover,.smallbtn:hover{border-color:var(--accent2)}.preset.active{background:var(--accent);color:white;border-color:var(--accent);font-weight:700}.recipe-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding-bottom:14px;border-bottom:2px solid var(--soft)}
   .badge{background:var(--soft);color:var(--accent);font-weight:700;padding:7px 10px;border-radius:999px;white-space:nowrap;font-size:.86rem}.ingredient{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eee5db}.ingredient:last-child{border-bottom:0}.ingredient.checked .iname,.ingredient.checked .amount{text-decoration:line-through;color:var(--done)}.iname{font-weight:620}.idesc{display:block;color:var(--muted);font-size:.8rem;margin-top:2px}.amount{text-align:right;font-variant-numeric:tabular-nums;font-weight:650}
-  ol{padding-left:1.25rem;margin-bottom:0}li{padding:5px 0 5px 3px;line-height:1.45}.note{background:var(--soft);border-left:4px solid var(--accent2);padding:12px 14px;border-radius:10px;margin-top:16px;color:#534a42;line-height:1.45}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.smallbtn{font-size:.85rem;padding:8px 10px}.meta{font-size:.85rem;color:var(--muted)}
+  ol{padding-left:1.25rem;margin-bottom:0}li{padding:5px 0 5px 3px;line-height:1.45}.note{background:var(--soft);border-left:4px solid var(--accent2);padding:12px 14px;border-radius:10px;margin-top:16px;color:#534a42;line-height:1.45}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.smallbtn{font-size:.84rem;padding:8px 10px}.meta{font-size:.85rem;color:var(--muted)}
+  .progress{margin-top:12px}.progresslabel{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:5px}.bar{height:7px;background:#eadfd2;border-radius:99px;overflow:hidden}.bar>span{display:block;height:100%;width:0;background:var(--accent2);transition:width .2s ease}
   @media(max-width:780px){.grid{grid-template-columns:1fr}.controls{position:static}header{align-items:flex-start;flex-direction:column}}
   @page{size:letter;margin:.55in}
   @media print{
@@ -56,13 +57,14 @@
 <label class="toggle"><input type="checkbox" data-addon="orangeZest"><span><strong>Orange zest</strong><span>Brightens dried fruit especially well.</span></span></label>
 <label class="toggle"><input type="checkbox" data-addon="rosemary"><span><strong>Rosemary</strong><span>A savory counterpoint to the brown sugar.</span></span></label>
 <label class="toggle"><input type="checkbox" data-addon="pepper"><span><strong>Black pepper</strong><span>Pairs naturally with rosemary.</span></span></label>
+<div class="progress"><div class="progresslabel"><span>Recipe progress</span><span id="progressText">0 checked</span></div><div class="bar"><span id="progressBar"></span></div></div>
+<div class="toolbar"><button class="smallbtn" id="resetChecks">Reset checks</button><button class="smallbtn" onclick="window.print()">Print</button></div>
 </aside>
 <main class="card recipe">
 <div class="recipe-head"><div><h2 id="recipeTitle" style="margin-bottom:5px">Brown Sugar Bread — 1.5-pound loaf</h2><div class="meta">KBS MBF-010 • Basic/White cycle • Medium crust</div></div><div class="badge" id="variantBadge">Base loaf</div></div>
 <h3>Ingredients</h3><div id="ingredients"></div>
 <h3>Method</h3><ol id="method"></ol>
 <div class="note">During the first knead, look for a smooth, elastic, slightly tacky dough ball. If it smears heavily, add flour 1 tablespoon at a time. If it is stiff or dry, add water 1 teaspoon at a time.</div>
-<div class="toolbar"><button class="smallbtn" id="resetChecks">Uncheck all</button><button class="smallbtn" onclick="window.print()">Print recipe</button></div>
 </main></div></div>
 <script>
 const base={
@@ -126,7 +128,7 @@ function render(){
   active.forEach(key=>{const a=addons[key];list.push({id:"add-"+key,name:a.name,amount:addonAmount(key),desc:a.desc||""})});
   const host=document.getElementById("ingredients");host.innerHTML="";
   list.forEach(item=>{const row=document.createElement("label");row.className="ingredient"+(checked.has(item.id)?" checked":"");row.innerHTML=`<input type="checkbox" ${checked.has(item.id)?"checked":""} data-ing="${item.id}"><span><span class="iname">${item.name}</span>${item.desc?`<span class="idesc">${item.desc}</span>`:""}</span><span class="amount">${item.amount}</span>`;host.appendChild(row)});
-  document.querySelectorAll("[data-ing]").forEach(cb=>cb.addEventListener("change",e=>{e.target.checked?checked.add(e.target.dataset.ing):checked.delete(e.target.dataset.ing);e.target.closest(".ingredient").classList.toggle("checked",e.target.checked)}));
+  document.querySelectorAll("[data-ing]").forEach(cb=>cb.addEventListener("change",e=>{e.target.checked?checked.add(e.target.dataset.ing):checked.delete(e.target.dataset.ing);e.target.closest(".ingredient").classList.toggle("checked",e.target.checked);updateProgress()}));
   const method=[
     "Add water and oils to the bread pan first, followed by brown sugar.",
     "Add bread flour, then salt. Make a small indentation in the flour and add the yeast, keeping it away from the liquid until mixing begins.",
@@ -136,6 +138,16 @@ function render(){
   if(active.some(x=>["cinnamon","orangeZest","rosemary","pepper"].includes(x)))method.push("Add dry spices and zest with the flour so they distribute evenly through the dough.");
   method.push("Check the dough during the first knead. It should form a smooth, elastic, slightly tacky ball that clears most of the pan.","When the cycle finishes, remove the loaf promptly and cool on a rack before slicing.");
   document.getElementById("method").innerHTML=method.map(x=>`<li>${x}</li>`).join("");
+  updateProgress();
+}
+function updateProgress(){
+  const boxes=[...document.querySelectorAll("#ingredients [data-ing]")];
+  const done=boxes.filter(box=>box.checked).length;
+  const total=boxes.length;
+  const progressText=document.getElementById("progressText");
+  const progressBar=document.getElementById("progressBar");
+  if(progressText)progressText.textContent=`${done} of ${total} checked`;
+  if(progressBar)progressBar.style.width=(total?Math.round(done/total*100):0)+"%";
 }
 document.getElementById("sizes").addEventListener("click",e=>{if(!e.target.dataset.size)return;loaf=Number(e.target.dataset.size);document.querySelectorAll("#sizes button").forEach(b=>b.classList.toggle("active",b===e.target));checked.clear();render()});document.querySelectorAll("[data-addon]").forEach(cb=>cb.addEventListener("change",()=>{checked.clear();render()}));const presets={base:[],sesame:["sesameOil","sesameSeeds"],cinnamonpecan:["cinnamon","pecans"],orangecran:["orangeZest","cranberries"],savory:["rosemary","pepper"]};
 const presetTitles={base:"Brown Sugar Bread",sesame:"Toasted Sesame Brown Sugar Bread",cinnamonpecan:"Cinnamon Pecan Brown Sugar Bread",orangecran:"Orange Cranberry Brown Sugar Bread",savory:"Rosemary Pepper Brown Sugar Bread"};document.querySelectorAll("[data-preset]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("[data-addon]").forEach(cb=>cb.checked=presets[btn.dataset.preset].includes(cb.dataset.addon));checked.clear();render()}));document.getElementById("resetChecks").addEventListener("click",()=>{checked.clear();render()});render();
