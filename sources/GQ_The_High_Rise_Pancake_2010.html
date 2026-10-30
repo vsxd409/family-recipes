@@ -23,7 +23,7 @@
 <p>The original magazine page is headed <em>The Technique &gt; The High-Rise Pancake</em>. Its recipe is titled <em>The Big Pancake</em>. Cheryl kept the clipping, and the publication date is printed at the bottom of the photographed page: <strong>December 2010</strong>. This confirms the family recollection that Michael passed a GQ pancake recipe on to Dan years ago.</p>
 <h3>Magazine recipe compared with the family recipe</h3>
 <table class="provenance-table"><thead><tr><th>Detail</th><th>GQ original (2010)</th><th>Cheryl’s family version</th></tr></thead><tbody>
-<tr><td>Flour</td><td>½ cup</td><td>2 cups</td></tr>
+<tr><td>Flour</td><td>½ cup</td><td>½ cup</td></tr>
 <tr><td>Sugar</td><td>1 teaspoon</td><td>2 tablespoons</td></tr>
 <tr><td>Salt</td><td>¼ teaspoon</td><td>¼ teaspoon</td></tr>
 <tr><td>Eggs</td><td>2, beaten</td><td>2</td></tr>
@@ -35,20 +35,7 @@
 <tr><td>Finish</td><td>Lemon juice and powdered sugar</td><td>Lemon juice and powdered sugar</td></tr>
 </tbody></table>
 <div class="note"><strong>Family recipe remains the default</strong><p>The original GQ instructions are documented for provenance, not substituted into Cheryl’s German Pancake recipe. The family has its own baking method and special variations for Ellie (chocolate chips) and Josie (apple and cinnamon). <a href="../recipes/german-pancake.html">Return to the interactive family version.</a></p></div>
-<div class="source-status" id="scanStatus"><strong>Archival scan:</strong> A US Letter PDF was prepared from Cheryl’s photographed magazine page. It is awaiting upload to this repository.</div>
+<div class="source-status" id="scanStatus"><strong>Original clipping:</strong> <a href="./GQ_The_Big_Pancake_December_2010.pdf" target="_blank" rel="noopener">View Cheryl’s photographed magazine article (PDF)</a>.</div>
 </div>
 <footer>Source identification based on Cheryl's physical clipping: GQ, December 2010, page 156, “The High-Rise Pancake,” by Adam Rapoport; photo credit partly obscured in the photographed clipping. Original magazine material belongs to its respective rights holders.</footer>
-</div>
-<script>
-// Show the original photo PDF only when the uploaded archive file actually exists.
-(async () => {
-  const target=document.getElementById('scanStatus');
-  const path='./GQ_The_Big_Pancake_December_2010.pdf';
-  try {
-    const response=await fetch(path,{method:'HEAD',cache:'no-store'});
-    if(response.ok){
-      target.innerHTML='<strong>Original clipping:</strong> <a href="'+path+'" target="_blank" rel="noopener">View the photographed GQ article (PDF)</a>';
-    }
-  } catch (_) { /* source details remain available without the PDF */ }
-})();
-</script></body></html>
+</div></body></html>
